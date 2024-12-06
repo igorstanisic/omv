@@ -1,0 +1,80 @@
+2.1 U promenljivu img uˇcitati lena.png. Prikazati uˇcitanu sliku tako da se vrednost 0 prikaže kao crna,
+vrednost 255 prikaže kao bela, a vrednosti izmed¯u njih prikažu kao nijanse sive.
+
+import plotly.express as px
+from skimage import io
+img = io.imread('lena.png')
+fig = px.imshow(img, zmin=0, zmax=255, color_continuous_scale='gray')
+# opciono
+fig.update_layout(coloraxis_showscale=False)
+fig.update_xaxes(showticklabels=False)
+fig.update_yaxes(showticklabels=False)
+# prikaz
+fig.show()
+
+2.2 U promenljivu img uˇcitati baboon.png. Odrediti promenljive: 1. img_2 ˇciji pikseli imaju intenzitete
+uve´cane za 100 u odnosu na img 2. img_3 ˇciji pikseli imaju intenzitete umanjene za 100 u odnosu
+na img.
+import plotly.express as px
+from skimage import io
+img = io.imread('baboon.png')
+fig = px.imshow(img, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+img_2 = img.astype('float') + 100
+fig = px.imshow(img_2, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+img_3 = img.astype('float') - 100
+fig = px.imshow(img_3, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+
+2.3 U promenljivu img uˇcitati sliku zelda.png i prikazati je u opsegu [0,255].
+Promenljivoj slike normalizovati opseg vrednosti (preraˇcunati ga na opseg [0, 1]) i prikazati je.
+import plotly.express as px
+from skimage import io
+img = io.imread('zelda.png')
+fig = px.imshow(img, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+img_norm = (img - img.min())/(img.max()-img.min())
+fig = px.imshow(img_norm, zmin=0, zmax=1, color_continuous_scale='gray')
+fig.show()
+
+2.4 U promenljivu img uˇcitati peppers.png. Uˇcitanu sliku snimiti pod imenom peppers2.png. Snimljenu
+sliku uˇcitati i prikazati.
+import matplotlib.pyplot as plt
+from skimage import io
+img = io.imread('peppers.png')
+plt.imshow(img, cmap='gray')
+plt.show()
+io.imsave('peppers2.png', img)
+img2 = io.imread('peppers2.png')
+plt.imshow(img2, cmap='gray')
+plt.show()
+
+2.5 U promenljivu img uˇcitati boat.png. Ise´ci centralnih 50% slike i prikazati ih.
+import matplotlib.pyplot as plt
+from skimage import io
+img = io.imread('boat.png')
+plt.imshow(img, cmap='gray')
+plt.show()
+N, M = img.shape
+img2 = img[round(N*0.25):round(N*0.75),
+round(M*0.25):round(M*0.75)]
+plt.imshow(img2, cmap='gray')
+plt.show()
+
+2.6 U promenljivu img uˇcitati cat.png. Sliku prikazati preslikanu (okrenutu, engl. flipped) u odnosu
+na horizontalnu i vertikalnu osu simetrije.
+import matplotlib.pyplot as plt
+from skimage import io
+import numpy as np
+img = io.imread('cat.png')
+img_flipud = np.flipud(img)
+img_fliplr = np.fliplr(img)
+plt.figure(figsize=(20,10))
+plt.subplot(1,3,1)
+plt.imshow(img, cmap='gray')
+plt.subplot(1,3,2)
+plt.imshow(img_flipud, cmap='gray')
+plt.subplot(1,3,3)
+plt.imshow(img_fliplr, cmap='gray')
+plt.show()
