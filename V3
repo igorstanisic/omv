@@ -1,0 +1,60 @@
+3.1 U promenljivu img uˇcitati head.png. Prikazati uˇcitanu sliku sa automatskim podešavanjem tonske
+skale. Odrediti kvantizovanu sliku koja predstavlja originalnu sliku sa smanjenim brojem mogu-
+c´ih nivoa intenziteta. Koristiti 3 bita informacije za odred¯ivanje kvantizovane slike i uniformno
+odred¯ene nivoe.
+import plotly.express as px
+from skimage import io
+import numpy as np
+img = io.imread('head.png')
+fig = px.imshow(img, color_continuous_scale='gray')
+fig.show()
+bit_num = 3
+bin_string = '1'*bit_num + '0'*(8-bit_num) # automatsko odredjivanje stringa sa binarnim zapisom koristeci operacije nad listama
+quant_mask = int(bin_string, 2)
+print('Decimalni broj za kvantizacionu masku: {}'.format(quant_mask))
+Q = img & quant_mask
+Q = np.round(Q/quant_mask*255).astype('uint8') #skaliranje na opseg [0,255]
+print('Unikatne vrednosti u okviru kvantizovane slike: {}'.format(np.unique(Q)))
+fig = px.imshow(Q, color_continuous_scale='gray')
+fig.show()
+
+3.2 U promenljivu img uˇcitati sliku baboon.png. Upotrebom funkcije rescale iz skimage.transform
+modula veliˇcinu slike umanjiti 4, 8 i 16 puta. Rezultat snimiti u promenljive img_2a, img_3a i
+img_4a. Koriš´cenjem funkcije resize iz skimage.transform uve´cati ove slike na dimenziju originalne
+slike img i rezultate smestiti u img_2b, img_3b i img_4b. Prilikom koriš´cenja funkcije koristiti
+bilinearnu interpolaciju. Ispisati pojedinaˇcne veliˇcine dobijenih slika i prikazati finalne.
+import matplotlib.pyplot as plt
+from skimage import io
+from skimage.transform import rescale, resize
+import numpy as np
+img = io.imread('baboon.png')
+print('Dimenzija slike img: {}'.format(img.shape))
+# 4x
+img_2a = rescale(img, 1/4, order=1, preserve_range=True)
+print('Dimenzija slike img_2a: {}'.format(img_2a.shape))
+img_2b = resize(img_2a, img.shape, order=1, preserve_range=True)
+print('Dimenzija slike img_2b: {}'.format(img_2b.shape))
+# 8x
+img_3a = rescale(img, 1/8, order=1, preserve_range=True)
+print('Dimenzija slike img_3a: {}'.format(img_3a.shape))
+img_3b = resize(img_3a, img.shape, order=1, preserve_range=True)
+print('Dimenzija slike img_3b: {}'.format(img_3b.shape))
+# 16x
+img_4a = rescale(img, 1/16, order=1, preserve_range=True)
+print('Dimenzija slike img_4a: {}'.format(img_4a.shape))
+img_4b = resize(img_4a, img.shape, order=1, preserve_range=True)
+print('Dimenzija slike img_4b: {}'.format(img_4b.shape))
+plt.figure(figsize=(20,20))
+plt.subplot(1,4,1)
+plt.title('Originalna slika')
+plt.imshow(img, cmap='gray')
+plt.subplot(1,4,2)
+plt.title('Slika umanjena pa uvecana 4x')
+plt.imshow(img_2b, cmap='gray')
+plt.subplot(1,4,3)
+plt.title('Slika umanjena pa uvecana 8x')
+plt.imshow(img_3b, cmap='gray')
+plt.subplot(1,4,4)
+plt.title('Slika umanjena pa uvecana 16x')
+plt.imshow(img_4b, cmap='gray')
+plt.show()
