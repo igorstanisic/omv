@@ -1,0 +1,59 @@
+4.1 U promenljivu img ucˇitati lena.png. Odrediti sliku koja nastaje odred¯ivanjem kvadratnog korena
+nad vrednostima piksela uˇcitane slike. Slike prikazati u opsegu tonske skale [0,255].
+import plotly.express as px
+import matplotlib.pyplot as plt
+from skimage import io
+import numpy as np
+img = io.imread('lena.png')
+fig = px.imshow(img, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+img_sqrt = np.sqrt(img.astype('float'))
+fig = px.imshow(img_sqrt, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+LUT = np.sqrt(np.arange(0,256))
+# prikaz tabele, tj. transformacione krive koja izvrsava operaciju korenovanja␣
+,→nad pojedinacnim intenzitetima
+fig = px.line(x=np.arange(256), y=LUT)
+fig.update_layout(xaxis_title="ulazni intenzitet", yaxis_title="izlazni␣
+,→intenzitet")
+fig.show(config={'modeBarButtonsToAdd':['drawline',
+'eraseshape']})
+img_sqrt2 = LUT[img]
+fig = px.imshow(img_sqrt2, zmin = 0, zmax = 255, color_continuous_scale='gray')
+fig.show()
+
+4.3 Odrediti negativ slike boat.png koriste´ci LUT.
+import matplotlib.pyplot as plt
+from skimage import io
+import numpy as np
+img = io.imread('boat.png')
+plt.imshow(img, cmap='gray')
+plt.show()
+LUT = 255 - np.arange(0,256) # ili jednostavno np.arange(255,-1,-1)
+plt.plot(np.arange(256),LUT)
+plt.xlabel('ulazni intenziteti')
+plt.ylabel('izlazni intenziteti')
+plt.show()
+img_neg = LUT[img]
+plt.imshow(img_neg, cmap='gray')
+plt.show()
+
+4.4 Nad slikom cat.png upotrebiti deo-po-deo linearnu transformaciju. Transformacija je odred¯ena
+parovima (ulaz,izlaz).
+(0,0), (100,50), (200,250), (255,255)
+import matplotlib.pyplot as pkt
+from skimage import io
+import numpy as np
+img = io.imread('cat.png')
+fig = px.imshow(img, color_continuous_scale='gray')
+fig.show()
+lut1 = np.linspace(0,50,101)
+lut2 = np.linspace(50,250,101)
+lut3 = np.linspace(250,255,56)
+LUT = np.concatenate((lut1[:-1],lut2[:-1],lut3),axis=0)
+fig = px.line(x=np.arange(256), y=LUT)
+fig.update_layout(width=500,height=500)
+fig.show()
+img_2 = LUT[img]
+fig = px.imshow(img_2, color_continuous_scale='gray')
+fig.show()
