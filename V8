@@ -1,0 +1,191 @@
+8.1 Napraviti demo sliku dimenzije 256x256 sa dva kvadrata u sredini (jedan u drugom) koji su sa
+nijansama 127 i 191. Postaviti pozadinu na 63. Prikazati njen histogram.
+Na ovu sliku dodati AWGN šum varijanse 100 i srednje vrednosti 0. Prikazati rezultat i histogram
+nove slike. Odrediti vršni odnost signal-šum.
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import numpy as np
+img = np.full((256,256), fill_value=63) # moze i kao np.zeros()+63 / np.ones()*63
+img[32:32+192,32:32+192] = 127
+img[64:64+128,64:64+128] = 191
+hist, bin_edges = np.histogram(img, bins = np.arange(257))
+fig = make_subplots(rows=1, cols=2)
+fig.add_trace(go.Image(z=np.stack((img, img, img), axis=2)), row=1, col=1)
+fig.add_trace(go.Scatter(x=np.arange(256), y=hist, mode='lines',name='hist',line=dict(color='blue')), row=1, col=2)
+fig.show()
+import plotly.express as px
+rng = np.random.default_rng()
+noise_im = rng.standard_normal(size=img.shape)
+fig = px.imshow(noise_im, color_continuous_scale='gray')
+fig.show()
+img_noisy = img + noise_im*np.sqrt(100) + 0
+img_noisy[img_noisy > 255] = 255
+img_noisy[img_noisy < 0] = 0
+hist_n, bin_edges = np.histogram(img_noisy, bins = np.arange(257))
+fig = make_subplots(rows=1, cols=2)
+fig.add_trace(go.Image(z=np.stack((img_noisy, img_noisy, img_noisy), axis=2)),␣
+,→row=1, col=1)
+fig.add_trace(go.Scatter(x=np.arange(256), y=hist_n,␣
+,→mode='lines',name='hist_noisy', line=dict(color='blue')), row=1, col=2)
+fig.show()
+psnr = 10*np.log10(255**2/((img - img_noisy)**2).mean())
+print(psnr)
+
+8.2 Koriste´ci zašumljenu sliku iz prethodnog primera, ukloniti šum upotrebom aritmetiˇckog usrednjiva
+ˇca veliˇcina: * 3x3 * 5x5 * 11x11
+Koriste´ci PSNR odrediti koji filtar je dao objektivno najbolje otklanjanje.
+import plotly.express as px
+fig = px.imshow(img_noisy, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show
+from scipy import ndimage
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+# 3x3 aritmeticki usrednjivac
+kernel = np.ones((3,3))/9
+img_f = ndimage.convolve(img_noisy.astype('float'), kernel, mode = 'mirror')
+fig = px.imshow(img_f, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+psnr = 10*np.log10(255**2/((img - img_f)**2).mean())
+print("PSNR za box filtar dimenzije {} je {}".format(kernel.shape, psnr))
+# 5x5 aritmeticki usrednjivac
+kernel = np.ones((5,5))/25
+img_f = ndimage.convolve(img_noisy.astype('float'), kernel, mode = 'mirror')
+fig = px.imshow(img_f, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+psnr = 10*np.log10(255**2/((img - img_f)**2).mean())
+print("PSNR za box filtar dimenzije {} je {}".format(kernel.shape, psnr))
+# 11x11 aritmeticki usrednjivac
+kernel = np.ones((11,11))/121
+img_f = ndimage.convolve(img_noisy.astype('float'), kernel, mode = 'mirror')
+fig = px.imshow(img_f, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+psnr = 10*np.log10(255**2/((img - img_f)**2).mean())
+print("PSNR za box filtar dimenzije {} je {}".format(kernel.shape, psnr))
+
+8.4 Napraviti demo sliku dimenzije 256x256 sa dva kvadrata u sredini (jedan u drugom) koji su sa
+nijansama 127 i 191. Postaviti pozadinu na 63. Prikazati njen histogram.
+Na ovu sliku dodati impulsni: * so * biber * so i biber
+šum gustine 20%. Prikazati zašumljene slike i njihove histograme.
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import numpy as np
+img = np.full((256,256), fill_value=63) # moze i kao np.zeros()+63 / np.ones()*63
+img[32:32+192,32:32+192] = 127
+img[64:64+128,64:64+128] = 191
+hist, bin_edges = np.histogram(img, bins = np.arange(257))
+fig = make_subplots(rows=1, cols=2)
+fig.add_trace(go.Image(z=np.stack((img, img, img), axis=2)), row=1, col=1)
+fig.add_trace(go.Scatter(x=np.arange(256), y=hist, mode='lines',name='hist',line=dict(color='blue')), row=1, col=2)
+fig.show()
+import plotly.express as px
+rng = np.random.default_rng()
+p = rng.uniform(size=img.shape)
+fig = px.imshow(p, color_continuous_scale='gray')
+fig.show
+p0 = 0.2
+fig = px.imshow(p<p0, color_continuous_scale='gray')
+fig.show()
+so
+img_so = img.copy()
+img_so[p<p0] = 255
+hist, bin_edges = np.histogram(img_so, bins = np.arange(257))
+fig = make_subplots(rows=1, cols=2)
+fig.add_trace(go.Image(z=np.stack((img_so, img_so, img_so), axis=2)), row=1,col=1)
+fig.add_trace(go.Scatter(x=np.arange(256), y=hist, mode='lines',name='hist',line=dict(color='blue')), row=1, col=2)
+fig.show()
+psnr = 10*np.log10(255**2/((img - img_so)**2).mean())
+print("PSNR za zasumljenu sliku je {}".format(psnr))
+biber
+img_biber = img.copy()
+img_biber[rng.uniform(size=img.shape)<p0] = 0
+hist, bin_edges = np.histogram(img_biber, bins = np.arange(257))
+fig = make_subplots(rows=1, cols=2)
+fig.add_trace(go.Image(z=np.stack((img_biber, img_biber, img_biber), axis=2)),row=1, col=1)
+fig.add_trace(go.Scatter(x=np.arange(256), y=hist, mode='lines',name='hist',line=dict(color='blue')), row=1, col=2)
+fig.show()
+psnr = 10*np.log10(255**2/((img - img_biber)**2).mean())
+print("PSNR za zasumljenu sliku je {}".format(psnr))
+biber i so
+img_sb = img.copy()
+p = rng.uniform(size=img.shape)
+img_sb[p<p0/2] = 0
+img_sb[(p0/2<=p) & (p<p0)] = 255
+hist, bin_edges = np.histogram(img_sb, bins = np.arange(257))
+fig = make_subplots(rows=1, cols=2)
+fig.add_trace(go.Image(z=np.stack((img_sb, img_sb, img_sb), axis=2)), row=1,col=1)
+fig.add_trace(go.Scatter(x=np.arange(256), y=hist, mode='lines',name='hist',line=dict(color='blue')), row=1, col=2)
+fig.show()
+psnr = 10*np.log10(255**2/((img - img_sb)**2).mean())
+print("PSNR za zasumljenu sliku je {}".format(psnr))
+
+8.6 Sliku img_sb iz primera 8.4 filtrirati median filtrom statistike poretka dimenzije 3x3.
+import plotly.express as px
+import numpy as np
+fig = px.imshow(img_sb, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+from scipy import signal
+region = np.ones((3,3))
+img_f = signal.order_filter(img_sb,domain=region,rank=4)
+fig = px.imshow(img_f, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+from scipy import ndimage
+region = np.ones((3,3))
+img_f = ndimage.median_filter(img_sb,footprint=region,mode='reflect')
+fig = px.imshow(img_f, zmin=0, zmax=255, color_continuous_scale='gray')
+fig.show()
+
+8.7 Uˇcitati sliku lena.png i dodati joj AWGN varijanse 100 i srednje vrednosti 0. Nad ovom zašumljenom
+slikom dodati impulsni so i biber šum gustine 5%.
+Za potrebe uklanjanja ovog kombinovanog šuma potrebno je napisati funkciju
+alphaTrimmedMeanFilt koja implementira alfa-trimovani usrednjivaˇc (engl. alpha-trimmed
+mean) dat formulom:
+ˆ f (x, y) =
+1
+mn − α Σ
+(s,t)∈Sx,y
+gr(s, t)
+gde (s, t) predstavljaju prostorne koordinate regiona Sx,y posmatran oko centra pozicije (x, y), gr
+su ulazni intenziteti nakon odbacivanja vrednosti a m, n predstavljaju dimenzije regiona koji se
+posmatra. α predstavlja parametar koliko se ukupno najmanjih i najve´cih vrednosti odbacuje.
+Sliku filtrirati sa posmatranim regionom 3x3 i alfa parametrom od 4. Prikazati rezulat i uporediti
+PSNR pre i posle filtriranja.
+import plotly.express as px
+from skimage import io
+import numpy as np
+img = io.imread('lena.png')
+fig = px.imshow(img, color_continuous_scale='gray')
+fig.show()
+# Gausov sum
+rng = np.random.default_rng()
+img_noisy = img + rng.standard_normal(size=img.shape)*np.sqrt(100) + 0
+img_noisy[img_noisy>255] = 255
+img_noisy[img_noisy<0] = 0
+# So i biber sum
+p = rng.uniform(size=img.shape)
+p0 = 0.05
+img_noisy[p<p0/2] = 0
+img_noisy[(p0/2<=p) & (p<p0)] = 255
+fig = px.imshow(img_noisy, color_continuous_scale='gray')
+fig.show()
+import math
+def alphaTrimmedMeanFilt(g, S_shape, alpha):
+f = np.zeros(g.shape)
+pad_rows = math.floor(S_shape[0]/2)
+pad_cols = math.floor(S_shape[1]/2)
+img_p = np.pad(g, ((pad_rows,),(pad_cols,)), mode='symmetric')
+for row in range(f.shape[0]):
+for col in range(f.shape[1]):
+region = img_p[row:row+S_shape[0], col:col+S_shape[1]]
+region = np.sort(region, axis = None)
+res = region[alpha//2:-alpha//2].mean()
+f[row, col] = res
+return f
+# 3x3 region
+S_shape = (3,3)
+img_f = alphaTrimmedMeanFilt(img_noisy, S_shape, alpha=4)
+fig = px.imshow(img_f, color_continuous_scale='gray')
+fig.show()
+psnr1 = 10*np.log10(255**2/((img - img_noisy)**2).mean())
+psnr2 = 10*np.log10(255**2/((img - img_f)**2).mean())
+print("PSNR za zasumljenu sliku je {}".format(psnr1))
+print("PSNR za alfa-trimovani usrednjivac dimenzije {} je {}".format(S_shape,psnr2))
